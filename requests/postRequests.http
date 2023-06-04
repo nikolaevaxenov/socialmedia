@@ -1,0 +1,61 @@
+###
+# @no-log
+# @name SignIn
+POST http://localhost:8080/api/v1/authorization/signin
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "123456"
+}
+
+> {% client.global.set("auth_token", response.body); %}
+###
+
+###
+# @no-log
+# @name Create post
+POST http://localhost:8080/api/v1/posts
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "title": "New post",
+  "body": "Lorem ipsum"
+}
+###
+
+###
+# @no-log
+# @name Get all posts by username
+GET http://localhost:8080/api/v1/posts/user/user1
+Authorization: Bearer {{auth_token}}
+###
+
+###
+# @no-log
+# @name Get post by id
+GET http://localhost:8080/api/v1/posts/55
+Authorization: Bearer {{auth_token}}
+###
+
+###
+# @no-log
+# @name Edit post
+PUT http://localhost:8080/api/v1/posts
+Authorization: Bearer {{auth_token}}
+Content-Type: application/json
+
+{
+  "id": 5,
+  "title": "Edited post",
+  "body": "Lorem ipsum"
+}
+###
+
+###
+# @no-log
+# @name Delete post
+DELETE http://localhost:8080/api/v1/posts/5
+Authorization: Bearer {{auth_token}}
+###

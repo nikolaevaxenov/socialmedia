@@ -1,17 +1,21 @@
 package com.socialmedia.app.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
-@Data
+import java.util.Objects;
+import java.util.Set;
+
+@Getter
+@Setter
 @NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
-    @Getter
     @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue
@@ -30,9 +34,35 @@ public class User {
     @NotBlank
     private String password;
 
+    @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonManagedReference(value = "posts")
+    private Set<Post> posts;
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return Objects.equals(getId(), user.getId()) && Objects.equals(getUsername(), user.getUsername()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getPassword(), user.getPassword());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getUsername(), getEmail());
     }
 }

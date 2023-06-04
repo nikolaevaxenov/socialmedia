@@ -1,17 +1,26 @@
 ###
 # @no-log
-# @name HomePage
-GET http://localhost:8080/
-###
-
-###
-# @no-log
 # @name SignIn
 POST http://localhost:8080/api/v1/authorization/signin
 Content-Type: application/json
 
 {
   "username": "user1",
+  "password": "123456"
+}
+
+> {% client.global.set("auth_token", response.body); %}
+###
+
+###
+# @no-log
+# @name SignUp
+POST http://localhost:8080/api/v1/authorization/signup
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "email": "newuser@mail.com",
   "password": "123456"
 }
 
