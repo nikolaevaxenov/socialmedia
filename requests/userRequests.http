@@ -1,0 +1,34 @@
+###
+# @no-log
+# @name SignIn
+POST http://localhost:8080/api/v1/authorization/signin
+Content-Type: application/json
+
+{
+  "username": "user1",
+  "password": "123456"
+}
+
+> {% client.global.set("auth_token", response.body); %}
+###
+
+###
+# @no-log
+# @name Follow user2
+POST http://localhost:8080/api/v1/user/follow/user2
+Authorization: Bearer {{auth_token}}
+###
+
+###
+# @no-log
+# @name Follow user3
+POST http://localhost:8080/api/v1/user/follow/user3
+Authorization: Bearer {{auth_token}}
+###
+
+###
+# @no-log
+# @name Get post feed
+GET http://localhost:8080/api/v1/posts/feed?size=10&direction=www
+Authorization: Bearer {{auth_token}}
+###

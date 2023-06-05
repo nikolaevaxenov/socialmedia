@@ -24,26 +24,27 @@ public class SocialmediaApplication {
         return args -> {
             var user1 = new User("user1", "user1@mail.com", passwordEncoder.encode("123456"));
             var user2 = new User("user2", "user2@mail.com", passwordEncoder.encode("123456"));
+            var user3 = new User("user3", "user3@mail.com", passwordEncoder.encode("123456"));
 
             userRepository.save(user1);
             userRepository.save(user2);
+            userRepository.save(user3);
 
             var post1 = new Post("Lorem ipsum", "Dolor sit amet, consectetur adipiscing elit");
-            var post2 = new Post("Ut enim ad minim veniam", "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat");
-            var post3 = new Post("Ut enim ad minim veniam", "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat");
-            var post4 = new Post("Ut enim ad minim veniam", "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat");
-
-            post1.setUser(user1);
-            post2.setUser(user1);
-            post3.setUser(user2);
-            post4.setUser(user2);
-
+            post1.setUser(user2);
             postRepository.save(post1);
-            postRepository.save(post2);
-            postRepository.save(post3);
-            postRepository.save(post4);
 
-            //postRepository.findAllByOrderByCreatedAtDesc().forEach(System.out::println);
+            var post2 = new Post("Ut enim ad minim veniam", "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat");
+            post2.setUser(user2);
+            postRepository.save(post2);
+
+            var post3 = new Post("Ut enim ad minim veniam", "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat");
+            post3.setUser(user3);
+            postRepository.save(post3);
+
+            var post4 = new Post("Ut enim ad minim veniam", "Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat");
+            post4.setUser(user3);
+            postRepository.save(post4);
         };
     }
 

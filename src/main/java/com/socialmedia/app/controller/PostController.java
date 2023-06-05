@@ -4,13 +4,20 @@ import com.socialmedia.app.dto.PostDto;
 import com.socialmedia.app.model.Post;
 import com.socialmedia.app.service.PostService;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.awt.print.Pageable;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @RestController
@@ -61,5 +68,19 @@ public class PostController {
     @ResponseStatus(HttpStatus.OK)
     public void addImageToPost(@PathVariable Long id, @RequestParam MultipartFile[] image) throws IOException {
         postService.addImageToPost(id, image);
+    }
+
+    @GetMapping("/feed")
+    @ResponseStatus(HttpStatus.OK)
+    public List<PostDto> getUserFeed(@RequestParam(defaultValue = "0") int page,
+                                     @RequestParam(defaultValue = "3") int size,
+                                     @RequestParam(defaultValue = "DESC") String direction,
+                                     Principal principal) {
+
+        if (!Objects.equals(direction, "ASC") && !Objects.equals(direction, "DESC")) {
+            direction = "DESC";
+        }
+
+        return postService.getUserFeed(principal, PageRequest.of(page, size, Sort.Direction.fromString(direction), "createdAt"));
     }
 }

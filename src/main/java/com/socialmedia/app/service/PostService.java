@@ -11,6 +11,8 @@ import com.socialmedia.app.util.PostConvertor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,16 +20,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.awt.print.Pageable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -141,5 +141,19 @@ public class PostService {
                 imageRepository.save(savedImage);
             }
         }
+    }
+
+    public List<PostDto> getUserFeed(Principal principal, PageRequest pageable) {
+        var user = userRepository
+                .findByUsername(principal.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found!"));
+
+        var posts = postRepository
+                .findAllByUserIn(user.getFollowing(), pageable);
+
+        return posts
+                .stream()
+                .map(postConvertor::convertToDto)
+                .toList();
     }
 }
