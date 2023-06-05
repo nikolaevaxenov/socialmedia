@@ -5,12 +5,14 @@ import com.socialmedia.app.dto.SignUpRequest;
 import com.socialmedia.app.model.User;
 import com.socialmedia.app.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Service class for handling user authentication and registration.
@@ -55,7 +57,7 @@ public class AuthService {
 
             return signIn(new SignInRequest(signUpRequest.username(), signUpRequest.password()));
         } catch (DataIntegrityViolationException ex) {
-            throw new DataIntegrityViolationException("User with this username or email already exists!");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User with this username or email already exists!");
         }
     }
 }

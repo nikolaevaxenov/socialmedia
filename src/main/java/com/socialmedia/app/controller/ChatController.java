@@ -2,6 +2,13 @@ package com.socialmedia.app.controller;
 
 import com.socialmedia.app.dto.ChatDto;
 import com.socialmedia.app.service.ChatService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +19,7 @@ import java.security.Principal;
  */
 @RestController
 @RequestMapping("/api/v1/chat")
+@Tag(name = "Chat", description = "Endpoints for handling chat-related operations")
 public class ChatController {
     private final ChatService chatService;
 
@@ -33,7 +41,14 @@ public class ChatController {
      */
     @GetMapping("/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public ChatDto getChatWithUser(@PathVariable String username, Principal principal) {
+    @Operation(summary = "Get Chat with User")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Chat retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = ChatDto.class))),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public ChatDto getChatWithUser(@Parameter(description = "The username of the user to retrieve the chat with.", required = true) @PathVariable String username,
+                                   Principal principal) {
         return chatService.getChatWithUser(username, principal);
     }
 
@@ -46,7 +61,14 @@ public class ChatController {
      */
     @PostMapping("/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public void sendMessageToUser(@PathVariable String username, @RequestBody String text, Principal principal) {
+    @Operation(summary = "Send Message to User")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Message sent successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public void sendMessageToUser(@Parameter(description = "The username of the user to send the message to.", required = true) @PathVariable String username,
+                                  @RequestBody String text,
+                                  Principal principal) {
         chatService.sendMessageToUser(username, text, principal);
     }
 }

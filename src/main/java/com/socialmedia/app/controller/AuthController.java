@@ -3,6 +3,10 @@ package com.socialmedia.app.controller;
 import com.socialmedia.app.dto.SignInRequest;
 import com.socialmedia.app.dto.SignUpRequest;
 import com.socialmedia.app.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/authorization")
+@Tag(name = "Authorization", description = "Endpoints for user authentication and authorization")
 public class AuthController {
     private final AuthService authService;
 
@@ -31,6 +36,11 @@ public class AuthController {
      */
     @PostMapping("/signin")
     @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "Sign In")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Successful sign-in"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized")
+    })
     public String signIn(@RequestBody SignInRequest signInRequest) {
         return authService.signIn(signInRequest);
     }
@@ -43,6 +53,11 @@ public class AuthController {
      */
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Sign Up")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Successful sign-up"),
+            @ApiResponse(responseCode = "409", description = "User already exists")
+    })
     public String signUp(@RequestBody SignUpRequest signUpRequest) {
         return authService.signUp(signUpRequest);
     }

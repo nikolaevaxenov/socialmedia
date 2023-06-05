@@ -2,6 +2,10 @@ package com.socialmedia.app.controller;
 
 import com.socialmedia.app.dto.UserDto;
 import com.socialmedia.app.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +36,13 @@ public class UserController {
      * @return the UserDto object representing the user.
      */
     @GetMapping("/username/{username}")
-    public UserDto getUserByUsername(@PathVariable String username) {
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get User by Username")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public UserDto getUserByUsername(@Parameter(description = "The username of the user to retrieve.") @PathVariable String username) {
         return userService.getUserByUsername(username);
     }
 
@@ -44,7 +54,13 @@ public class UserController {
      */
     @PostMapping("/follow/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public void followUser(@PathVariable String username, Principal principal) {
+    @Operation(summary = "Follow User")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User followed successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public void followUser(@Parameter(description = "The username of the user to follow.") @PathVariable String username,
+                           Principal principal) {
         userService.followUser(username, principal);
     }
 
@@ -56,7 +72,13 @@ public class UserController {
      */
     @DeleteMapping("/follow/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public void unFollowUser(@PathVariable String username, Principal principal) {
+    @Operation(summary = "Unfollow User")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User unfollowed successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public void unFollowUser(@Parameter(description = "The username of the user to unfollow.") @PathVariable String username,
+                             Principal principal) {
         userService.unFollowUser(username, principal);
     }
 
@@ -68,6 +90,11 @@ public class UserController {
      */
     @GetMapping("/friendrequestsout")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get Sent Friend Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sent friend requests retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "User didn't sent friend requests")
+    })
     public Set<String> getSentFriendRequests(Principal principal) {
         return userService.getSentFriendRequests(principal);
     }
@@ -80,6 +107,11 @@ public class UserController {
      */
     @GetMapping("/friendrequestsin")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get Incoming Friend Requests")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Incoming friend requests retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "User has no incoming friend requests")
+    })
     public Set<String> getIncomingFriendRequests(Principal principal) {
         return userService.getIncomingFriendRequests(principal);
     }
@@ -92,7 +124,15 @@ public class UserController {
      */
     @PostMapping("/friend/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public void addFriend(@PathVariable String username, Principal principal) {
+    @Operation(summary = "Add or accept friend request")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Friend added successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "409", description = "You are already friends with given user"),
+            @ApiResponse(responseCode = "409", description = "Friend request to given user already sent")
+    })
+    public void addFriend(@Parameter(description = "The username of the friend to add.") @PathVariable String username,
+                          Principal principal) {
         userService.addFriend(username, principal);
     }
 
@@ -104,7 +144,14 @@ public class UserController {
      */
     @DeleteMapping("/friend/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public void removeFriend(@PathVariable String username, Principal principal) {
+    @Operation(summary = "Remove or decline friend request")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Friend removed successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "409", description = "You are not friends with given user")
+    })
+    public void removeFriend(@Parameter(description = "The username of the friend to remove.") @PathVariable String username,
+                             Principal principal) {
         userService.removeFriend(username, principal);
     }
 }

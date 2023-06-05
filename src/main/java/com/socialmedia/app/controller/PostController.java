@@ -3,6 +3,14 @@ package com.socialmedia.app.controller;
 import com.socialmedia.app.dto.PostDto;
 import com.socialmedia.app.model.Post;
 import com.socialmedia.app.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,6 +30,7 @@ import java.util.Set;
  */
 @RestController
 @RequestMapping("/api/v1/posts")
+@Tag(name = "Posts", description = "Endpoints for handling post-related operations")
 public class PostController {
     private final PostService postService;
 
@@ -42,7 +51,13 @@ public class PostController {
      */
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public PostDto getPostById(@PathVariable Long id) {
+    @Operation(summary = "Get Post by ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Post retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = PostDto.class))),
+            @ApiResponse(responseCode = "404", description = "Post not found")
+    })
+    public PostDto getPostById(@Parameter(description = "The ID of the post to retrieve.", required = true) @PathVariable Long id) {
         return postService.getPostById(id);
     }
 
@@ -54,7 +69,13 @@ public class PostController {
      */
     @GetMapping("/user/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public Set<PostDto> getPostsByUsername(@PathVariable String username) {
+    @Operation(summary = "Get Posts by Username")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Posts retrieved successfully",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = PostDto.class)))),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public Set<PostDto> getPostsByUsername(@Parameter(description = "The username of the user to retrieve the posts for.", required = true) @PathVariable String username) {
         return postService.getPostsByUsername(username);
     }
 
@@ -67,6 +88,12 @@ public class PostController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Create Post")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Post created successfully",
+                    content = @Content(schema = @Schema(implementation = PostDto.class))),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     public PostDto createPost(@RequestBody Post post, Principal principal) {
         return postService.createPost(post, principal);
     }
@@ -80,6 +107,13 @@ public class PostController {
      */
     @PutMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "Edit Post")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "202", description = "Post edited successfully",
+                    content = @Content(schema = @Schema(implementation = PostDto.class))),
+            @ApiResponse(responseCode = "403", description = "You can't edit someone's post!"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     public PostDto editPost(@RequestBody Post post, Principal principal) {
         return postService.editPost(post, principal);
     }
@@ -92,7 +126,15 @@ public class PostController {
      */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deletePost(@PathVariable Long id, Principal principal) {
+    @Operation(summary = "Delete Post")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Post deleted successfully",
+                    content = @Content(schema = @Schema(implementation = PostDto.class))),
+            @ApiResponse(responseCode = "403", description = "You can't delete someone's post!"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public void deletePost(@Parameter(description = "The ID of the post to be deleted.", required = true) @PathVariable Long id,
+                           Principal principal) {
         postService.deletePost(id, principal);
     }
 
@@ -104,7 +146,12 @@ public class PostController {
      * @throws IOException if an error occurs while retrieving the image.
      */
     @GetMapping("/image/{id}")
-    public ResponseEntity<InputStreamResource> getImage(@PathVariable Long id) throws IOException {
+    @Operation(summary = "Get Post Image")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Post image retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Image with given id not found")
+    })
+    public ResponseEntity<InputStreamResource> getImage(@Parameter(description = "The ID of the post to retrieve the image from.", required = true) @PathVariable Long id) throws IOException {
         return postService.getImage(id);
     }
 
@@ -117,7 +164,15 @@ public class PostController {
      */
     @PostMapping("/image/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void addImageToPost(@PathVariable Long id, @RequestParam MultipartFile[] image) throws IOException {
+    @Operation(summary = "Add Image to Post")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Image added to post successfully"),
+            @ApiResponse(responseCode = "406", description = "Invalid image format"),
+            @ApiResponse(responseCode = "406", description = "Uploaded image is too large"),
+            @ApiResponse(responseCode = "404", description = "Post not found")
+    })
+    public void addImageToPost(@Parameter(description = "The ID of the post to add the image to.", required = true) @PathVariable Long id,
+                               @Parameter(description = "The image file(s) to be added to the post.", required = true) @RequestParam MultipartFile[] image) throws IOException {
         postService.addImageToPost(id, image);
     }
 
@@ -132,9 +187,14 @@ public class PostController {
      */
     @GetMapping("/feed")
     @ResponseStatus(HttpStatus.OK)
-    public List<PostDto> getUserFeed(@RequestParam(defaultValue = "0") int page,
-                                     @RequestParam(defaultValue = "3") int size,
-                                     @RequestParam(defaultValue = "DESC") String direction,
+    @Operation(summary = "Get User Feed")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User feed retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
+    public List<PostDto> getUserFeed(@Parameter(description = "The page number of the feed to retrieve. Default is 0.", example = "0") @RequestParam(defaultValue = "0") int page,
+                                     @Parameter(description = "The size of each page of the feed. Default is 3.", example = "3") @RequestParam(defaultValue = "3") int size,
+                                     @Parameter(description = "The sorting direction of the feed. Default is DESC.", example = "DESC") @RequestParam(defaultValue = "DESC") String direction,
                                      Principal principal) {
 
         if (!Objects.equals(direction, "ASC") && !Objects.equals(direction, "DESC")) {
