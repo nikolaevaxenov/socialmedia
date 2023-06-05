@@ -23,7 +23,7 @@ public class SocialmediaApplication {
                                         PasswordEncoder passwordEncoder) {
         return args -> {
             var user1 = new User("user1", "user1@mail.com", passwordEncoder.encode("123456"));
-            var user2 = new User("user2", "user2@mail.com", passwordEncoder.encode("qwerty"));
+            var user2 = new User("user2", "user2@mail.com", passwordEncoder.encode("123456"));
 
             userRepository.save(user1);
             userRepository.save(user2);

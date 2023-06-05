@@ -22,8 +22,6 @@ public class Image {
     private String mediaType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    @JsonBackReference(value = "images")
     private Post post;
 
     public Image(String location, String mediaType) {

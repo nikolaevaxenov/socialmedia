@@ -1,5 +1,6 @@
 package com.socialmedia.app.controller;
 
+import com.socialmedia.app.dto.PostDto;
 import com.socialmedia.app.model.Post;
 import com.socialmedia.app.service.PostService;
 import org.springframework.core.io.InputStreamResource;
@@ -23,25 +24,25 @@ public class PostController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Post getPostById(@PathVariable Long id) {
+    public PostDto getPostById(@PathVariable Long id) {
         return postService.getPostById(id);
     }
 
     @GetMapping("/user/{username}")
     @ResponseStatus(HttpStatus.OK)
-    public Set<Post> getPostsByUsername(@PathVariable String username) {
+    public Set<PostDto> getPostsByUsername(@PathVariable String username) {
         return postService.getPostsByUsername(username);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Post createPost(@RequestBody Post post, Principal principal) {
+    public PostDto createPost(@RequestBody Post post, Principal principal) {
         return postService.createPost(post, principal);
     }
 
     @PutMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public Post editPost(@RequestBody Post post, Principal principal) {
+    public PostDto editPost(@RequestBody Post post, Principal principal) {
         return postService.editPost(post, principal);
     }
 

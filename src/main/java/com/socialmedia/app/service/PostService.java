@@ -1,10 +1,13 @@
 package com.socialmedia.app.service;
 
+import com.socialmedia.app.dto.PostDto;
 import com.socialmedia.app.model.Image;
 import com.socialmedia.app.model.Post;
 import com.socialmedia.app.repository.ImageRepository;
 import com.socialmedia.app.repository.PostRepository;
 import com.socialmedia.app.repository.UserRepository;
+import com.socialmedia.app.util.ImageConvertor;
+import com.socialmedia.app.util.PostConvertor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.core.io.InputStreamResource;
@@ -25,6 +28,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -32,37 +36,42 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final ImageRepository imageRepository;
+    private final PostConvertor postConvertor;
 
     private final Tika tika = new Tika();
 
-    public PostService(PostRepository postRepository, UserRepository userRepository, ImageRepository imageRepository) {
+    public PostService(PostRepository postRepository, UserRepository userRepository, ImageRepository imageRepository, PostConvertor postConvertor) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.imageRepository = imageRepository;
+        this.postConvertor = postConvertor;
     }
 
-    public Post getPostById(Long id) {
+    public PostDto getPostById(Long id) {
         return postRepository
                 .findById(id)
+                .map(postConvertor::convertToDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post with given id not found!"));
     }
 
-    public Set<Post> getPostsByUsername(String username) {
+    public Set<PostDto> getPostsByUsername(String username) {
         return postRepository
                 .findAllByUser_UsernameOrderByCreatedAtDesc(username)
+                .map(post -> post.stream().map(postConvertor::convertToDto).collect(Collectors.toSet()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found!"));
     }
 
-    public Post createPost(Post post, Principal principal) {
+    public PostDto createPost(Post post, Principal principal) {
         var user = userRepository
                 .findByUsername(principal.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found!"));
         post.setUser(user);
+        postRepository.save(post);
 
-        return postRepository.save(post);
+        return postConvertor.convertToDto(post);
     }
 
-    public Post editPost(Post editedPost, Principal principal) {
+    public PostDto editPost(Post editedPost, Principal principal) {
         var post = postRepository
                 .findById(editedPost.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post with given id not found!"));
@@ -72,7 +81,9 @@ public class PostService {
             if (editedPost.getBody() != null)
                 post.setBody(editedPost.getBody());
 
-            return postRepository.save(post);
+            postRepository.save(post);
+
+            return postConvertor.convertToDto(post);
         } else {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can't edit someone's post!");
         }

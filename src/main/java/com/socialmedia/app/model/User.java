@@ -1,5 +1,7 @@
 package com.socialmedia.app.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -35,13 +37,41 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user", orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference(value = "posts")
     private Set<Post> posts;
+
+    @ManyToMany
+    private Set<User> following;
+
+    @ManyToMany(mappedBy = "following")
+    private Set<User> followers;
+
+    @ManyToMany
+    private Set<User> friends;
 
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    public void followUser(User user) {
+        this.following.add(user);
+    }
+
+    public void unFollowUser(User user) {
+        this.following.remove(user);
+    }
+
+    public void addFriend(User user) {
+        this.friends.add(user);
+    }
+
+    public void removeFriend(User user) {
+        this.friends.remove(user);
+    }
+
+    public boolean searchFriend(User user) {
+        return this.friends.contains(user);
     }
 
     @Override

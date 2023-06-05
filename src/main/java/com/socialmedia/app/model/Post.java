@@ -32,11 +32,9 @@ public class Post {
     private Instant createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonBackReference(value = "posts")
     private User user;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonManagedReference(value = "images")
     private Set<Image> images;
 
     public Post(String title, String body) {
