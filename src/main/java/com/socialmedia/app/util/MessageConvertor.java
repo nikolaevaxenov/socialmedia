@@ -8,10 +8,16 @@ import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
+/**
+ * Utility class for converting Message entities to MessageDto objects.
+ */
 @Component
 public class MessageConvertor {
     private final ModelMapper modelMapper;
 
+    /**
+     * Constructs a MessageConvertor and configures the ModelMapper.
+     */
     public MessageConvertor() {
         this.modelMapper = new ModelMapper();
 
@@ -32,6 +38,12 @@ public class MessageConvertor {
                 );
     }
 
+    /**
+     * Converts a Message entity to a MessageDto object.
+     *
+     * @param message the Message entity to convert
+     * @return the MessageDto object
+     */
     public MessageDto convertToDto(Message message) {
         return modelMapper.map(message, MessageDto.class);
     }

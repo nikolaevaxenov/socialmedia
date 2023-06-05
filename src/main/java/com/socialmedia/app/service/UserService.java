@@ -14,18 +14,35 @@ import java.security.Principal;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for managing user-related operations.
+ */
 @Service
 public class UserService {
     private final UserRepository userRepository;
     private final FriendStatusRepository friendStatusRepository;
     private final UserConvertor userConvertor;
 
+    /**
+     * Constructs a UserService with the provided repositories and user convertor.
+     *
+     * @param userRepository        the repository for managing user data
+     * @param friendStatusRepository the repository for managing friend status data
+     * @param userConvertor          the convertor for converting User entities to DTOs
+     */
     public UserService(UserRepository userRepository, FriendStatusRepository friendStatusRepository, UserConvertor userConvertor) {
         this.userRepository = userRepository;
         this.friendStatusRepository = friendStatusRepository;
         this.userConvertor = userConvertor;
     }
 
+    /**
+     * Retrieves a user by their username and returns it as a DTO.
+     *
+     * @param username the username of the user to retrieve
+     * @return the UserDto representing the user
+     * @throws ResponseStatusException if the user with the given username is not found
+     */
     public UserDto getUserByUsername(String username) {
         return userRepository
                 .findByUsername(username)
@@ -33,6 +50,13 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found!"));
     }
 
+    /**
+     * Follows another user.
+     *
+     * @param username  the username of the user to follow
+     * @param principal the principal representing the authenticated user
+     * @throws ResponseStatusException if the user with the given username is not found
+     */
     public void followUser(String username, Principal principal) {
         var follower = userRepository
                 .findByUsername(principal.getName())
@@ -46,6 +70,13 @@ public class UserService {
         userRepository.save(follower);
     }
 
+    /**
+     * Unfollows another user.
+     *
+     * @param username  the username of the user to unfollow
+     * @param principal the principal representing the authenticated user
+     * @throws ResponseStatusException if the user with the given username is not found
+     */
     public void unFollowUser(String username, Principal principal) {
         var follower = userRepository
                 .findByUsername(principal.getName())
@@ -59,6 +90,13 @@ public class UserService {
         userRepository.save(follower);
     }
 
+    /**
+     * Retrieves the usernames of users who have received friend requests from the authenticated user.
+     *
+     * @param principal the principal representing the authenticated user
+     * @return a set of usernames of users who have received friend requests
+     * @throws ResponseStatusException if the authenticated user has not sent any friend requests
+     */
     public Set<String> getSentFriendRequests(Principal principal) {
         var friendStatuses = friendStatusRepository
                 .findAllByUserFrom_Username(principal.getName())
@@ -71,6 +109,13 @@ public class UserService {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Retrieves the usernames of users who have sent friend requests to the authenticated user.
+     *
+     * @param principal the principal representing the authenticated user
+     * @return a set of usernames of users who have sent friend requests
+     * @throws ResponseStatusException if the authenticated user has no incoming friend requests
+     */
     public Set<String> getIncomingFriendRequests(Principal principal) {
         var friendStatuses = friendStatusRepository
                 .findAllByUserTo_Username(principal.getName())
@@ -83,6 +128,15 @@ public class UserService {
                 .collect(Collectors.toSet());
     }
 
+    /**
+     * Adds a friend connection between two users.
+     *
+     * @param username  the username of the user to add as a friend
+     * @param principal the principal representing the authenticated user
+     * @throws ResponseStatusException if the user with the given username is not found,
+     *                                or if the friend request has already been sent,
+     *                                or if the users are already friends
+     */
     public void addFriend(String username, Principal principal) {
         var toUser = friendStatusRepository.findByUserFrom_UsernameAndUserTo_Username(username, principal.getName());
         var fromUser = friendStatusRepository.findByUserFrom_UsernameAndUserTo_Username(principal.getName(), username);
@@ -118,6 +172,15 @@ public class UserService {
         }
     }
 
+    /**
+     * Removes a friend connection between two users.
+     *
+     * @param username  the username of the user to remove as a friend
+     * @param principal the principal representing the authenticated user
+     * @throws ResponseStatusException if the user with the given username is not found,
+     *                                or if the friend request has already been sent,
+     *                                or if the users are already friends
+     */
     public void removeFriend(String username, Principal principal) {
         var toUser = friendStatusRepository.findByUserFrom_UsernameAndUserTo_Username(username, principal.getName());
         var fromUser = friendStatusRepository.findByUserFrom_UsernameAndUserTo_Username(principal.getName(), username);

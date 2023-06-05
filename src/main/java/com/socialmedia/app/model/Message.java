@@ -11,6 +11,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 import java.util.Objects;
 
+/**
+ * Represents a message in a chat.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,12 +38,24 @@ public class Message {
     @CreationTimestamp
     private Instant createdAt;
 
+    /**
+     * Constructs a new Message object with the given text, user, and chat.
+     *
+     * @param text     The text content of the message.
+     * @param fromUser The user who sent the message.
+     * @param chat     The chat to which the message belongs.
+     */
     public Message(String text, User fromUser, Chat chat) {
         this.text = text;
         this.fromUser = fromUser;
         this.chat = chat;
     }
 
+    /**
+     * Returns the string representation of the Message object.
+     *
+     * @return The string representation of the Message object.
+     */
     @Override
     public String toString() {
         return "Message{" +
@@ -50,6 +65,12 @@ public class Message {
                 '}';
     }
 
+    /**
+     * Checks if the Message object is equal to another object.
+     *
+     * @param o The object to compare with.
+     * @return true if the objects are equal, false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -57,6 +78,11 @@ public class Message {
         return Objects.equals(getId(), message.getId()) && Objects.equals(getText(), message.getText()) && Objects.equals(getCreatedAt(), message.getCreatedAt());
     }
 
+    /**
+     * Returns the hash code value for the Message object.
+     *
+     * @return The hash code value for the Message object.
+     */
     @Override
     public int hashCode() {
         return Objects.hash(getId(), getText(), getCreatedAt());

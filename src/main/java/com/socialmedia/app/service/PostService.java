@@ -6,13 +6,10 @@ import com.socialmedia.app.model.Post;
 import com.socialmedia.app.repository.ImageRepository;
 import com.socialmedia.app.repository.PostRepository;
 import com.socialmedia.app.repository.UserRepository;
-import com.socialmedia.app.util.ImageConvertor;
 import com.socialmedia.app.util.PostConvertor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.awt.print.Pageable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -30,8 +26,10 @@ import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for managing post functionality.
+ */
 @Service
-@Slf4j
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -47,6 +45,13 @@ public class PostService {
         this.postConvertor = postConvertor;
     }
 
+    /**
+     * Retrieves a post by its ID.
+     *
+     * @param id the ID of the post
+     * @return the post DTO
+     * @throws ResponseStatusException if the post is not found
+     */
     public PostDto getPostById(Long id) {
         return postRepository
                 .findById(id)
@@ -54,6 +59,13 @@ public class PostService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post with given id not found!"));
     }
 
+    /**
+     * Retrieves all posts by a given username.
+     *
+     * @param username the username of the user
+     * @return a set of post DTOs
+     * @throws ResponseStatusException if the user is not found
+     */
     public Set<PostDto> getPostsByUsername(String username) {
         return postRepository
                 .findAllByUser_UsernameOrderByCreatedAtDesc(username)
@@ -61,6 +73,14 @@ public class PostService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with given username not found!"));
     }
 
+    /**
+     * Creates a new post.
+     *
+     * @param post      the post object
+     * @param principal the authenticated user principal
+     * @return the created post DTO
+     * @throws ResponseStatusException if the user is not found
+     */
     public PostDto createPost(Post post, Principal principal) {
         var user = userRepository
                 .findByUsername(principal.getName())
@@ -71,6 +91,14 @@ public class PostService {
         return postConvertor.convertToDto(post);
     }
 
+    /**
+     * Edits a post.
+     *
+     * @param editedPost the edited post object
+     * @param principal  the authenticated user principal
+     * @return the updated post DTO
+     * @throws ResponseStatusException if the post is not found or the user is not authorized to edit the post
+     */
     public PostDto editPost(Post editedPost, Principal principal) {
         var post = postRepository
                 .findById(editedPost.getId())
@@ -89,6 +117,13 @@ public class PostService {
         }
     }
 
+    /**
+     * Deletes a post.
+     *
+     * @param id        the ID of the post
+     * @param principal the authenticated user principal
+     * @throws ResponseStatusException if the post is not found or the user is not authorized to delete the post
+     */
     public void deletePost(Long id, Principal principal) {
         var post = postRepository
                 .findById(id)
@@ -100,6 +135,14 @@ public class PostService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can't delete someone's post!");
     }
 
+    /**
+     * Retrieves an image by its ID.
+     *
+     * @param id the ID of the image
+     * @return the image as a ResponseEntity with InputStreamResource
+     * @throws IOException               if there is an error while reading the image file
+     * @throws ResponseStatusException   if the image is not found
+     */
     public ResponseEntity<InputStreamResource> getImage(Long id) throws IOException {
         var image = imageRepository
                 .findById(id)
@@ -114,6 +157,15 @@ public class PostService {
                 .body(new InputStreamResource(in));
     }
 
+    /**
+     * Adds images to a post.
+     *
+     * @param id     the ID of the post
+     * @param images an array of MultipartFile objects representing the images
+     * @throws IOException             if there is an error while reading or saving the images
+     * @throws ResponseStatusException if the post is not found, the image is empty, the uploaded file is not an image,
+     *                                 or the uploaded image is too large
+     */
     public void addImageToPost(Long id, MultipartFile[] images) throws IOException {
         var post = postRepository
                 .findById(id)
@@ -143,6 +195,14 @@ public class PostService {
         }
     }
 
+    /**
+     * Retrieves the user feed, which includes posts from the users that the authenticated user is following.
+     *
+     * @param principal the authenticated user principal
+     * @param pageable  the pageable object for pagination
+     * @return a list of post DTOs
+     * @throws ResponseStatusException if the user is not found
+     */
     public List<PostDto> getUserFeed(Principal principal, PageRequest pageable) {
         var user = userRepository
                 .findByUsername(principal.getName())

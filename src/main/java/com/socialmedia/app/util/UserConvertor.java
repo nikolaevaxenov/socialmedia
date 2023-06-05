@@ -10,10 +10,16 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Utility class for converting User entities to UserDto objects.
+ */
 @Component
 public class UserConvertor {
     private final ModelMapper modelMapper;
 
+    /**
+     * Constructs a UserConvertor and configures the ModelMapper.
+     */
     public UserConvertor() {
         this.modelMapper = new ModelMapper();
 
@@ -60,6 +66,12 @@ public class UserConvertor {
                 );
     }
 
+    /**
+     * Converts a User entity to a UserDto object.
+     *
+     * @param user the User entity to convert
+     * @return the UserDto object
+     */
     public UserDto convertToDto(User user) {
         return modelMapper.map(user, UserDto.class);
     }

@@ -31,6 +31,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+/**
+ * Configuration class for security-related settings.
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -38,10 +41,21 @@ public class SecurityConfig {
     private RSAKey rsaKey;
     private final UserDetailsServiceImpl userDetailsServiceImpl;
 
+    /**
+     * Constructs the SecurityConfig class.
+     *
+     * @param userDetailsServiceImpl the UserDetailsService implementation.
+     */
     public SecurityConfig(UserDetailsServiceImpl userDetailsServiceImpl) {
         this.userDetailsServiceImpl = userDetailsServiceImpl;
     }
 
+    /**
+     * Configures the authentication manager bean.
+     *
+     * @param userDetailsService the UserDetailsService implementation.
+     * @return the configured AuthenticationManager bean.
+     */
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsServiceImpl userDetailsService) {
         var authProvider = new DaoAuthenticationProvider();
@@ -51,6 +65,13 @@ public class SecurityConfig {
         return new ProviderManager(authProvider);
     }
 
+    /**
+     * Configures the security filter chain.
+     *
+     * @param http the HttpSecurity object.
+     * @return the configured SecurityFilterChain object.
+     * @throws Exception if an error occurs during configuration.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -67,11 +88,21 @@ public class SecurityConfig {
                 .build();
     }
 
+    /**
+     * Configures the password encoder bean that uses Argon2PasswordEncoder.
+     *
+     * @return the configured PasswordEncoder bean.
+     */
     @Bean
     PasswordEncoder passwordEncoder() {
         return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     }
 
+    /**
+     * Configures the JWKSource bean for JWT encoding.
+     *
+     * @return the configured JWKSource bean.
+     */
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
         rsaKey = Jwks.generateRsa();
@@ -79,16 +110,33 @@ public class SecurityConfig {
         return (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
     }
 
+    /**
+     * Configures the JwtEncoder bean for JWT encoding.
+     *
+     * @param jwks the JWKSource bean.
+     * @return the configured JwtEncoder bean.
+     */
     @Bean
     JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwks) {
         return new NimbusJwtEncoder(jwks);
     }
 
+    /**
+     * Configures the JwtDecoder bean for JWT decoding.
+     *
+     * @return the configured JwtDecoder bean.
+     * @throws JOSEException if an error occurs during JWT decoding.
+     */
     @Bean
     JwtDecoder jwtDecoder() throws JOSEException {
         return NimbusJwtDecoder.withPublicKey(rsaKey.toRSAPublicKey()).build();
     }
 
+    /**
+     * Configures the CORS configuration source.
+     *
+     * @return the configured CorsConfigurationSource.
+     */
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();

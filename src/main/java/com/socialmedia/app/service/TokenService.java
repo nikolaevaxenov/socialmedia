@@ -11,14 +11,28 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for generating authentication tokens.
+ */
 @Service
 public class TokenService {
     private final JwtEncoder jwtEncoder;
 
+    /**
+     * Constructs a TokenService with the provided JwtEncoder.
+     *
+     * @param jwtEncoder the JwtEncoder used for token generation
+     */
     public TokenService(JwtEncoder jwtEncoder) {
         this.jwtEncoder = jwtEncoder;
     }
 
+    /**
+     * Generates a JWT (JSON Web Token) for the authenticated user.
+     *
+     * @param authentication the authentication object representing the authenticated user
+     * @return the generated JWT
+     */
     public String generateToken(Authentication authentication) {
         Instant now = Instant.now();
         String scope = authentication.getAuthorities().stream()

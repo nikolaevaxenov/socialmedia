@@ -7,9 +7,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * Implementation of the Spring Security UserDetails interface for the User class.
+ * This class provides the necessary user details to the Spring Security framework.
+ */
 public class UserDetailsImpl implements UserDetails {
     private final User user;
 
+    /**
+     * Constructs a new UserDetailsImpl object with the given User.
+     *
+     * @param user The User object representing the user.
+     */
     public UserDetailsImpl(User user) {
         this.user = user;
     }

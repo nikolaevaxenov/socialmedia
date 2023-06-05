@@ -13,6 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.security.Principal;
 
+/**
+ * Service class for managing chat functionality.
+ */
 @Service
 public class ChatService {
     private final ChatRepository chatRepository;
@@ -27,6 +30,14 @@ public class ChatService {
         this.chatConvertor = chatConvertor;
     }
 
+    /**
+     * Retrieves the chat with a specific user.
+     *
+     * @param username  the username of the other user in the chat
+     * @param principal the authenticated user principal
+     * @return the chat DTO
+     * @throws ResponseStatusException if the chat is not found
+     */
     public ChatDto getChatWithUser(String username, Principal principal) {
         var chat = chatRepository
                 .findByUser1_UsernameAndUser2_Username(principal.getName(), username)
@@ -39,6 +50,14 @@ public class ChatService {
         }
     }
 
+    /**
+     * Sends a message to a specific user.
+     *
+     * @param username  the username of the recipient user
+     * @param text      the message text
+     * @param principal the authenticated user principal
+     * @throws ResponseStatusException if the recipient user or chat is not found, or if the recipient is not a friend
+     */
     public void sendMessageToUser(String username, String text, Principal principal) {
         var userFrom = userRepository
                 .findByUsername(principal.getName())

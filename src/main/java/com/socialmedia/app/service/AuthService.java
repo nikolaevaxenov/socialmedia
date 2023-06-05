@@ -12,6 +12,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for handling user authentication and registration.
+ */
 @Service
 public class AuthService {
     private final TokenService tokenService;
@@ -26,11 +29,25 @@ public class AuthService {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Authenticates a user with the provided sign-in request.
+     *
+     * @param signInRequest the sign-in request containing the username and password
+     * @return the authentication token
+     * @throws AuthenticationException if the authentication fails
+     */
     public String signIn(SignInRequest signInRequest) throws AuthenticationException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signInRequest.username(), signInRequest.password()));
         return tokenService.generateToken(authentication);
     }
 
+    /**
+     * Registers a new user with the provided sign-up request.
+     *
+     * @param signUpRequest the sign-up request containing the username, email, and password
+     * @return the authentication token
+     * @throws DataIntegrityViolationException if a user with the same username or email already exists
+     */
     public String signUp(SignUpRequest signUpRequest) {
         try {
             var newUser = new User(signUpRequest.username(), signUpRequest.email(), passwordEncoder.encode(signUpRequest.password()));

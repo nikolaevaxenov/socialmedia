@@ -12,11 +12,19 @@ import org.springframework.stereotype.Component;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Utility class for converting Chat entities to ChatDto objects.
+ */
 @Component
 public class ChatConvertor {
     private final ModelMapper modelMapper;
     private final MessageConvertor messageConvertor;
 
+    /**
+     * Constructs a ChatConvertor with the provided MessageConvertor.
+     *
+     * @param messageConvertor the convertor for converting Message entities to MessageDto objects
+     */
     public ChatConvertor(MessageConvertor messageConvertor) {
         this.messageConvertor = messageConvertor;
         this.modelMapper = new ModelMapper();
@@ -46,6 +54,12 @@ public class ChatConvertor {
                 );
     }
 
+    /**
+     * Converts a Chat entity to a ChatDto object.
+     *
+     * @param chat the Chat entity to convert
+     * @return the ChatDto object
+     */
     public ChatDto convertToDto(Chat chat) {
         return modelMapper.map(chat, ChatDto.class);
     }
