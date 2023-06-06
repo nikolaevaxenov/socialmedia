@@ -21,7 +21,6 @@ import java.util.Set;
 @Entity
 @Table(name = "posts")
 public class Post {
-    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue
     private Long id;
