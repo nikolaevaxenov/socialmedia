@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://database:5432/socialmedia
+    username: postgres
+    password: qwerty
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+server:
+  error:
+    include-message: always
